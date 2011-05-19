@@ -44,7 +44,7 @@ namespace Mono.Cecil.Pdb {
 			if (File.Exists (pdb))
 				File.Delete (pdb);
 
-			writer.Initialize (new ModuleMetadata (module), pdb, true);
+			writer.Initialize (new ModuleMetadata (module, false), pdb, true);
 
 			return writer;
 		}

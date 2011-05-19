@@ -146,10 +146,12 @@ namespace Mono.Cecil.Pdb {
 	class ModuleMetadata : IMetaDataEmit, IMetaDataImport {
 
 		readonly ModuleDefinition module;
+		readonly bool writeNames;
 
-		public ModuleMetadata (ModuleDefinition module)
+		public ModuleMetadata (ModuleDefinition module, bool writeNames)
 		{
 			this.module = module;
+			this.writeNames = writeNames;
 		}
 
 		public void SetModuleProps (string szName)
@@ -444,8 +446,38 @@ namespace Mono.Cecil.Pdb {
 
 		public uint GetTypeDefProps (uint td, IntPtr szTypeDef, uint cchTypeDef, out uint pchTypeDef, ref uint pdwTypeDefFlags)
 		{
-			pchTypeDef = 0;
-			return td;
+			var name = String.Empty;
+			if (writeNames)
+			{
+				var type  = module.LookupToken (new MetadataToken (td)) as TypeDefinition;
+				if (type != null)
+				{
+					if (type.IsNested)
+					{
+						var builder = new StringBuilder ();
+						AppendPdbTypeName (builder, type);
+
+						name = builder.ToString ();
+					}
+					else
+						name = type.FullName;
+				}
+			}
+
+			CopyStringToLPWSTR (name, szTypeDef, cchTypeDef, out pchTypeDef);
+			return 0;
+		}
+
+		private static void AppendPdbTypeName (StringBuilder builder, TypeDefinition type)
+		{
+			if (type.IsNested)
+			{
+				AppendPdbTypeName (builder, type.DeclaringType);
+				builder.Append ('/');
+				builder.Append (type.Name);
+			}
+			else
+				builder.Append (type.FullName);
 		}
 
 		public uint GetInterfaceImplProps (uint iiImpl, out uint pClass)
@@ -535,9 +567,38 @@ namespace Mono.Cecil.Pdb {
 
 		public uint GetMethodProps (uint mb, out uint pClass, IntPtr szMethod, uint cchMethod, out uint pchMethod, IntPtr pdwAttr, IntPtr ppvSigBlob, IntPtr pcbSigBlob, IntPtr pulCodeRVA)
 		{
-			pClass = 0;
-			pchMethod = 0;
-			return mb;
+			var name    = String.Empty;
+			var @class  = 0u ;
+
+			var method  = module.LookupToken (new MetadataToken (mb)) as MethodDefinition;
+			if (method != null)
+			{
+				@class  = method.DeclaringType.MetadataToken.ToUInt32 ();
+    
+				if (writeNames)
+					name = method.Name;
+			}
+
+			pClass = @class;
+			CopyStringToLPWSTR (name, szMethod, cchMethod, out pchMethod);
+			return 0 ;
+		}
+
+		private static void CopyStringToLPWSTR (string value, IntPtr ptr, uint cch, out uint cchRequired)
+		{
+			cchRequired = (uint)value.Length + 1 ;
+
+			foreach (var ch in value)
+			{
+				if (cch == 0) return ;
+
+				Marshal.WriteInt16 (ptr, ch);
+				ptr += 2;
+				cch -= 1;
+			}
+
+			if (cch > 0)
+				Marshal.WriteInt16 (ptr, 0);
 		}
 
 		public uint GetMemberRefProps (uint mr, ref uint ptk, StringBuilder szMember, uint cchMember, out uint pchMember, out IntPtr ppvSigBlob)
