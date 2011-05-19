@@ -92,6 +92,49 @@ namespace Mono.Cecil.Cil {
 		}
 	}
 
+	public sealed class ScopeSymbol : IVariableDefinitionProvider {
+
+		internal int start;
+		internal int end;
+
+		Collection<ScopeSymbol> scopes;
+		Collection<VariableDefinition> variables;
+
+		public int Start {
+			get { return start; }
+		}
+
+		public int End {
+			get { return end; }
+		}
+
+		public bool HasScopes {
+			get { return !scopes.IsNullOrEmpty (); }
+		}
+
+		public Collection<ScopeSymbol> Scopes {
+			get {
+				if (scopes == null)
+					scopes = new Collection<ScopeSymbol> ();
+
+				return scopes;
+			}
+		}
+
+		public bool HasVariables {
+			get { return !variables.IsNullOrEmpty (); }
+		}
+
+		public Collection<VariableDefinition> Variables {
+			get {
+				if (variables == null)
+					variables = new Collection<VariableDefinition> ();
+
+				return variables;
+			}
+		}
+	}
+
 	public struct InstructionSymbol {
 
 		public readonly int Offset;
@@ -108,6 +151,7 @@ namespace Mono.Cecil.Cil {
 
 		internal int code_size;
 		internal string method_name;
+		internal ScopeSymbol scope;
 		internal MetadataToken method_token;
 		internal MetadataToken local_var_token;
 		internal Collection<VariableDefinition> variables;
@@ -133,6 +177,10 @@ namespace Mono.Cecil.Cil {
 
 				return instructions;
 			}
+		}
+
+		public ScopeSymbol Scope {
+			get { return scope; }
 		}
 
 		public int CodeSize {

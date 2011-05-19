@@ -266,12 +266,12 @@ namespace Microsoft.Cci.Pdb {
               bits.ReadUInt32(out block.parent);
               bits.ReadUInt32(out block.end);
               bits.ReadUInt32(out block.len);
-              bits.ReadUInt32(out this.address);
+              bits.ReadUInt32(out block.off);
               bits.ReadUInt16(out block.seg);
               bits.SkipCString(out block.name);
               bits.Position = stop;
 
-              scopes[scope] = new PdbScope(block, bits, out slotToken);
+              scopes[scope] = new PdbScope(this.address, block, bits, out slotToken);
               bits.Position = (int)block.end;
               break;
             }

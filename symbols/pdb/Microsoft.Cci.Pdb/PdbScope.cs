@@ -13,12 +13,12 @@ namespace Microsoft.Cci.Pdb {
     internal string[] usedNamespaces;
 
     internal uint segment;
-    internal uint address;
+    internal uint offset;
     internal uint length;
 
-    internal PdbScope(BlockSym32 block, BitAccess bits, out uint typind) {
-      this.segment = block.seg;
-      this.address = block.off;
+    internal PdbScope(uint funcOffset, BlockSym32 block, BitAccess bits, out uint typind) {
+      //this.segment = block.seg;
+      this.offset = block.off - funcOffset;
       this.length = block.len;
       typind = 0;
 
@@ -58,7 +58,7 @@ namespace Microsoft.Cci.Pdb {
               bits.SkipCString(out sub.name);
 
               bits.Position = stop;
-              scopes[scope++] = new PdbScope(sub, bits, out typind);
+              scopes[scope++] = new PdbScope(funcOffset, sub, bits, out typind);
               break;
             }
 

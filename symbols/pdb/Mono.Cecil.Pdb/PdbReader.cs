@@ -120,41 +120,27 @@ namespace Mono.Cecil.Pdb {
 		{
 			foreach (PdbScope scope in scopes)
 				ReadScopeAndLocals (scope, parent, body, mapper);
-
-			CreateRootScope (body);
-		}
-
-		static void CreateRootScope (MethodBody body)
-		{
-			if (!body.HasVariables)
-				return;
-
-			var instructions = body.Instructions;
-
-			var root = new Scope ();
-			root.Start = instructions [0];
-			root.End = instructions [instructions.Count - 1];
-
-			var variables = body.Variables;
-			for (int i = 0; i < variables.Count; i++)
-				root.Variables.Add (variables [i]);
-
-			body.Scope = root;
 		}
 
 		static void ReadScopeAndLocals (PdbScope scope, Scope parent, MethodBody body, InstructionMapper mapper)
 		{
-			//Scope s = new Scope ();
-			//s.Start = GetInstruction (body, instructions, (int) scope.address);
-			//s.End = GetInstruction (body, instructions, (int) scope.length - 1);
-
-			//if (parent != null)
-			//	parent.Scopes.Add (s);
-			//else
-			//	body.Scopes.Add (s);
-
 			if (scope == null)
 				return;
+
+			Scope s = new Scope ();
+			s.Start = mapper ((int) scope.offset);
+			s.End   = mapper ((int)(scope.offset + scope.length));
+
+			if (s.End == null) s.End = body.Instructions[body.Instructions.Count - 1] ;
+			else               s.End = s.End.Previous ;
+
+			if (parent != null)
+				parent.Scopes.Add (s);
+			else
+			if (body.Scope == null)
+				body.Scope = s;
+			else
+				throw new InvalidDataException () ;
 
 			foreach (PdbSlot slot in scope.slots) {
 				int index = (int) slot.slot;
@@ -164,10 +150,10 @@ namespace Mono.Cecil.Pdb {
 				VariableDefinition variable = body.Variables [index];
 				variable.Name = slot.name;
 
-				//s.Variables.Add (variable);
+				s.Variables.Add (variable);
 			}
 
-			ReadScopeAndLocals (scope.scopes, null /* s */, body, mapper);
+			ReadScopeAndLocals (scope.scopes, s, body, mapper);
 		}
 
 		void ReadSequencePoints (PdbFunction function, InstructionMapper mapper)
@@ -225,30 +211,45 @@ namespace Mono.Cecil.Pdb {
 				return;
 
 			ReadSequencePoints (function, symbols);
-			ReadLocals (function.scopes, symbols);
+			ReadScopeAndLocals (function.scopes, null, symbols);
 		}
 
-		void ReadLocals (PdbScope [] scopes, MethodSymbols symbols)
+
+		static void ReadScopeAndLocals (PdbScope [] scopes, ScopeSymbol parent, MethodSymbols symbols)
 		{
-			foreach (var scope in scopes)
-				ReadLocals (scope, symbols);
+			foreach (PdbScope scope in scopes)
+				ReadScopeAndLocals (scope, parent, symbols);
 		}
 
-		void ReadLocals (PdbScope scope, MethodSymbols symbols)
+		static void ReadScopeAndLocals (PdbScope scope, ScopeSymbol parent, MethodSymbols symbols)
 		{
 			if (scope == null)
 				return;
 
-			foreach (var slot in scope.slots) {
+			ScopeSymbol s = new ScopeSymbol ();
+			s.start = (int) scope.offset;
+			s.end   = (int)(scope.offset + scope.length);
+
+			if (parent != null)
+				parent.Scopes.Add (s);
+			else
+			if (symbols.scope == null)
+				symbols.scope = s;
+			else
+				throw new InvalidDataException () ;
+
+			foreach (PdbSlot slot in scope.slots) {
 				int index = (int) slot.slot;
 				if (index < 0 || index >= symbols.Variables.Count)
 					continue;
 
-				var variable = symbols.Variables [index];
+				VariableDefinition variable = symbols.Variables [index];
 				variable.Name = slot.name;
+
+				s.Variables.Add (variable);
 			}
 
-			ReadLocals (scope.scopes, symbols);
+			ReadScopeAndLocals (scope.scopes, s, symbols);
 		}
 
 		void ReadSequencePoints (PdbFunction function, MethodSymbols symbols)
