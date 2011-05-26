@@ -47,13 +47,10 @@ namespace Mono.Cecil.Cil {
 		public int PointerToRawData;
 	}
 
-	public sealed class Scope : IVariableDefinitionProvider {
+	public class InstructionRange {
 
 		Instruction start;
 		Instruction end;
-
-		Collection<Scope> scopes;
-		Collection<VariableDefinition> variables;
 
 		public Instruction Start {
 			get { return start; }
@@ -64,6 +61,12 @@ namespace Mono.Cecil.Cil {
 			get { return end; }
 			set { end = value; }
 		}
+	}
+
+	public sealed class Scope : InstructionRange, IVariableDefinitionProvider {
+
+		Collection<Scope> scopes;
+		Collection<VariableDefinition> variables;
 
 		public bool HasScopes {
 			get { return !scopes.IsNullOrEmpty (); }
@@ -92,13 +95,10 @@ namespace Mono.Cecil.Cil {
 		}
 	}
 
-	public sealed class ScopeSymbol : IVariableDefinitionProvider {
+	public class RangeSymbol {
 
 		internal int start;
 		internal int end;
-
-		Collection<ScopeSymbol> scopes;
-		Collection<VariableDefinition> variables;
 
 		public int Start {
 			get { return start; }
@@ -107,6 +107,12 @@ namespace Mono.Cecil.Cil {
 		public int End {
 			get { return end; }
 		}
+	}
+
+	public sealed class ScopeSymbol : RangeSymbol, IVariableDefinitionProvider {
+
+		Collection<ScopeSymbol> scopes;
+		Collection<VariableDefinition> variables;
 
 		public bool HasScopes {
 			get { return !scopes.IsNullOrEmpty (); }
@@ -151,11 +157,13 @@ namespace Mono.Cecil.Cil {
 
 		internal int code_size;
 		internal string method_name;
+		internal string iterator_type;
 		internal ScopeSymbol scope;
 		internal MetadataToken method_token;
 		internal MetadataToken local_var_token;
 		internal Collection<VariableDefinition> variables;
 		internal Collection<InstructionSymbol> instructions;
+		internal Collection<RangeSymbol> iterator_scopes;
 
 		public bool HasVariables {
 			get { return !variables.IsNullOrEmpty (); }
@@ -179,6 +187,15 @@ namespace Mono.Cecil.Cil {
 			}
 		}
 
+		public Collection<RangeSymbol> IteratorScopes {
+			get {
+				if (iterator_scopes == null)
+					iterator_scopes = new Collection<RangeSymbol> ();
+
+				return iterator_scopes;
+			}
+		}
+
 		public ScopeSymbol Scope {
 			get { return scope; }
 		}
@@ -195,6 +212,11 @@ namespace Mono.Cecil.Cil {
 			get { return method_token; }
 		}
 
+		public string IteratorType {
+			get { return iterator_type; }
+			set { iterator_type = value; }
+		}
+		
 		public MetadataToken LocalVarToken {
 			get { return local_var_token; }
 		}

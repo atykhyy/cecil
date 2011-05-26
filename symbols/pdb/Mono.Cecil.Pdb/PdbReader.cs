@@ -114,6 +114,26 @@ namespace Mono.Cecil.Pdb {
 
 			ReadSequencePoints (function, mapper);
 			ReadScopeAndLocals (function.scopes, null, body, mapper);
+
+			if (!string.IsNullOrEmpty (function.iteratorClass))
+				body.IteratorType = body.Method.DeclaringType.GetNestedType (function.iteratorClass);
+
+			if (function.iteratorScopes != null)
+				foreach (Microsoft.Cci.ILocalScope scope in function.iteratorScopes)
+				{
+					InstructionRange range = new InstructionRange ();
+					SetInstructionRange (body, mapper, range, scope.Offset, scope.Length);
+					body.IteratorScopes.Add (range);
+				}
+		}
+
+		static void SetInstructionRange (MethodBody body, InstructionMapper mapper,	InstructionRange range, uint offset, uint length)
+		{
+			range.Start = mapper ((int) offset);
+			range.End   = mapper ((int)(offset + length));
+
+			if (range.End == null) range.End = body.Instructions[body.Instructions.Count - 1];
+			else                   range.End = range.End.Previous;
 		}
 
 		static void ReadScopeAndLocals (PdbScope [] scopes, Scope parent, MethodBody body, InstructionMapper mapper)
@@ -128,11 +148,7 @@ namespace Mono.Cecil.Pdb {
 				return;
 
 			Scope s = new Scope ();
-			s.Start = mapper ((int) scope.offset);
-			s.End   = mapper ((int)(scope.offset + scope.length));
-
-			if (s.End == null) s.End = body.Instructions[body.Instructions.Count - 1] ;
-			else               s.End = s.End.Previous ;
+			SetInstructionRange (body, mapper, s, scope.offset, scope.length);
 
 			if (parent != null)
 				parent.Scopes.Add (s);
@@ -212,6 +228,18 @@ namespace Mono.Cecil.Pdb {
 
 			ReadSequencePoints (function, symbols);
 			ReadScopeAndLocals (function.scopes, null, symbols);
+
+			if (!string.IsNullOrEmpty (function.iteratorClass))
+				symbols.IteratorType = function.iteratorClass;
+
+			if (function.iteratorScopes != null)
+				foreach (Microsoft.Cci.ILocalScope scope in function.iteratorScopes)
+				{
+					RangeSymbol range = new RangeSymbol ();
+					range.start = (int) scope.Offset;
+					range.end   = (int)(scope.Offset + scope.Length);
+					symbols.IteratorScopes.Add (range);
+				}
 		}
 
 
