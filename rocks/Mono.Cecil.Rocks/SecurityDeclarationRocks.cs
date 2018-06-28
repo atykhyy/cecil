@@ -8,7 +8,7 @@
 // Licensed under the MIT/X11 license.
 //
 
-#if !NET_CORE
+#if !NET_CORE && !NET_STD20
 
 using System;
 using System.Security;
