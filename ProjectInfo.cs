@@ -16,5 +16,5 @@ using System.Runtime.InteropServices;
 [assembly: ComVisible (false)]
 
 [assembly: AssemblyVersion ("0.10.0.0")]
-[assembly: AssemblyFileVersion ("0.10.0.0")]
-[assembly: AssemblyInformationalVersion ("0.10.0.0")]
+[assembly: AssemblyFileVersion ("0.10.0.1")] // increment to override Mono.Cecil 0.10.0 from nuget
+[assembly: AssemblyInformationalVersion ("0.10.0.1")]
