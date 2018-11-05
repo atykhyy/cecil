@@ -1,10 +1,10 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
-  <Import Project="..\..\Mono.Cecil.TFM.props" Condition=" '$(MSBuildRuntimeType)' != '' "/>
+<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003" ToolsVersion="15.0" Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <ProjectGuid>{63E6915C-7EA4-4D76-AB28-0D7191EEA626}</ProjectGuid>
-    <RootNamespace>Mono.Cecil.Pdb</RootNamespace>
-    <AssemblyName>Mono.Cecil.Pdb</AssemblyName>
+    <TargetFrameworks>net35;net40;net45;netstandard1.3;netstandard2.0</TargetFrameworks>
+  </PropertyGroup>
+  <Import Project="..\..\Mono.Cecil.TFM.props" />
+  <PropertyGroup>
     <NoWarn>0649</NoWarn>
   </PropertyGroup>
   <ItemGroup>
@@ -18,6 +18,4 @@
     <Compile Include="Microsoft.Cci.Pdb\*.cs" />
     <Compile Include="Mono.Cecil.Pdb\*.cs" />
   </ItemGroup>
-  <Import Project="..\..\Mono.Cecil.props" Condition=" '$(MSBuildRuntimeType)' == '' "/>
-  <Import Project="$(MSBuildCSharpTargets)" Condition=" ! $(NetStandard) " />
 </Project>

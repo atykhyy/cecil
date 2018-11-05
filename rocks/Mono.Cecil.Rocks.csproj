@@ -1,11 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
-<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
-  <Import Project="..\Mono.Cecil.TFM.props" Condition=" '$(MSBuildRuntimeType)' != '' "/>
+<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003" ToolsVersion="15.0" Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <ProjectGuid>{FBC6DD59-D09D-499C-B03C-99C1C78FF2AC}</ProjectGuid>
-    <RootNamespace>Mono.Cecil.Rocks</RootNamespace>
-    <AssemblyName>Mono.Cecil.Rocks</AssemblyName>
+    <TargetFrameworks>net35;net40;net45;netstandard1.3;netstandard2.0</TargetFrameworks>
   </PropertyGroup>
+  <Import Project="..\Mono.Cecil.TFM.props" />
   <ItemGroup>
     <Compile Include="..\ProjectInfo.cs" />
     <Compile Include="Mono.Cecil.Rocks\*.cs" />
@@ -16,8 +14,6 @@
       <Name>Mono.Cecil</Name>
     </ProjectReference>
   </ItemGroup>
-  <Import Project="..\Mono.Cecil.props" Condition=" '$(MSBuildRuntimeType)' == '' "/>
-  <Import Project="$(MSBuildCSharpTargets)" Condition=" ! $(NetStandard) " />
   <PropertyGroup>
     <DefineConstants>$(DefineConstants);INSIDE_ROCKS</DefineConstants>
   </PropertyGroup>

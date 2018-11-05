@@ -1,11 +1,9 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
-  <Import Project="Mono.Cecil.TFM.props" Condition=" '$(MSBuildRuntimeType)' != '' "/>
+<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003" ToolsVersion="15.0" Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <ProjectGuid>{D68133BD-1E63-496E-9EDE-4FBDBF77B486}</ProjectGuid>
-    <RootNamespace>Mono.Cecil</RootNamespace>
-    <AssemblyName>Mono.Cecil</AssemblyName>
+    <TargetFrameworks>net35;net40;net45;netstandard1.3;netstandard2.0</TargetFrameworks>
   </PropertyGroup>
+  <Import Project="Mono.Cecil.TFM.props" />
   <ItemGroup>
     <Compile Include="ProjectInfo.cs" />
     <Compile Include="Mono\*.cs" />
@@ -16,6 +14,4 @@
     <Compile Include="Mono.Collections.Generic\*.cs" />
     <Compile Include="Mono.Security.Cryptography\*.cs" />
   </ItemGroup>
-  <Import Project="Mono.Cecil.props" Condition=" '$(MSBuildRuntimeType)' == '' "/>
-  <Import Project="$(MSBuildCSharpTargets)" Condition=" ! $(NetStandard) " />
 </Project>
