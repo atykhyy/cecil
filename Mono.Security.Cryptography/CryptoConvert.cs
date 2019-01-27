@@ -29,8 +29,6 @@
 
 #if !READ_ONLY
 
-#if !NET_CORE
-
 using System;
 using System.Security.Cryptography;
 
@@ -277,8 +275,6 @@ namespace Mono.Security.Cryptography {
 		}
 	}
 }
-
-#endif
 
 #endif
 

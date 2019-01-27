@@ -9,6 +9,7 @@ namespace Mono.Cecil.Tests {
 	[TestFixture]
 	public class NestedTypesTests : BaseTestFixture {
 
+		#if !READ_ONLY
 		[Test]
 		public void NestedTypeRefs ()
 		{
@@ -33,6 +34,7 @@ namespace Mono.Cecil.Tests {
 				il.Emit (Cil.OpCodes.Ret);
 			});
 		}
+		#endif
 
 		[Test]
 		public void NestedTypes ()
