@@ -204,6 +204,12 @@ namespace Mono.Cecil.Cil {
 			this.instruction = null;
 			this.offset = offset;
 		}
+
+		public Instruction Instruction {
+			get {
+				return instruction;
+			}
+		}
 	}
 
 	[Flags]
